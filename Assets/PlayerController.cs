@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
 
     public Animator animator, musicAnim1, musicAnim2, musicAnim3;
 
+    public Vector3 checkpoint;
+
 
 
     // Start is called before the first frame update
@@ -31,6 +33,7 @@ public class PlayerController : MonoBehaviour
         //dashAquired = false;
         refSpeed = speed;
         defaultGrav = rb.gravityScale;
+        checkpoint = this.transform.position;
 
               
     }
@@ -217,6 +220,7 @@ public class PlayerController : MonoBehaviour
     void OnTriggerEnter2D(Collider2D col){
 
         if(col.gameObject.tag == "flag1"){
+            checkpoint = this.transform.position;
             StartCoroutine("SetAudioDelayed", "Music2");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music1", 1f));
             dashAquired = true;
@@ -225,6 +229,7 @@ public class PlayerController : MonoBehaviour
         }
 
         if(col.gameObject.tag == "flag2"){
+            checkpoint = this.transform.position;
             StartCoroutine("SetAudioDelayed", "Music3");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music2", 1f));
             Debug.Log("Flag2");
@@ -232,6 +237,7 @@ public class PlayerController : MonoBehaviour
         }
 
         if(col.gameObject.tag == "flag3"){
+            checkpoint = this.transform.position;
             StartCoroutine("SetAudioDelayed", "Music4");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music3", 1f));
             Debug.Log("Flag3");
@@ -239,6 +245,7 @@ public class PlayerController : MonoBehaviour
         }
 
         if(col.gameObject.tag == "flag4"){
+            checkpoint = this.transform.position;
             //musicAnim3.SetTrigger("fadeOut");
             //StartCoroutine("SetAudioDelayed", audioObj3);
             //FindObjectOfType<AudioManager>().StopPlaying("Music4");
@@ -249,6 +256,12 @@ public class PlayerController : MonoBehaviour
         if(col.gameObject.tag == "Platform"){
             onPlatform = true;
             platform = col.gameObject;
+        }
+
+        if(col.gameObject.tag == "Acid")
+        {
+            rb.velocity = new Vector2(0,0);
+            this.transform.position = checkpoint;
         }
 
 
