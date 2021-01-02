@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     public GameObject audioObj1, audioObj2, audioObj3, platform;
 
     Rigidbody2D rb;
-    public float speed, refSpeed, jumpForce, dashSpeed, xRaw, yRaw, x, y;
+    public float speed, refSpeed, jumpForce, dashSpeed, xRaw, yRaw, x, y, defaultGrav;
 
     public bool walk, onGround, onLeftWall, onRightWall, onPlatform, climbing, climbingAquired, dashing, canDash, dashAquired, wallJumpAquired, doubleJump, doubleJumpAquired, sprinting;
 
@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
         spriteRef = GetComponent<SpriteRenderer>();
         //dashAquired = false;
         refSpeed = speed;
+        defaultGrav = rb.gravityScale;
 
               
     }
@@ -186,7 +187,7 @@ public class PlayerController : MonoBehaviour
         rb.drag = 10f;
         rb.velocity = rawDir.normalized * new Vector2(dashSpeed, dashSpeed/1.3f);
         yield return new WaitForSeconds(0.3f);
-        rb.gravityScale = 6f;
+        rb.gravityScale = defaultGrav;
         rb.drag = 0;
         dashing = false;
         animator.SetBool("Dashing", false);
@@ -207,39 +208,42 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawWireSphere((Vector2)transform.position + leftOffset, collisionRadius);
     }
 
+    IEnumerator SetAudioDelayed(string music){
+        yield return new WaitForSeconds(1f);
+        FindObjectOfType<AudioManager>().Play(music);
+
+    }
+
     void OnTriggerEnter2D(Collider2D col){
 
         if(col.gameObject.tag == "flag1"){
-            //musicAnim1.SetTrigger("fadeOut");
-            //StartCoroutine("SetAudioDelayed", audioObj1);
-            FindObjectOfType<AudioManager>().Play("Music2");
-            FindObjectOfType<AudioManager>().StopPlaying("Music1");
+            StartCoroutine("SetAudioDelayed", "Music2");
+            StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music1", 1f));
+            dashAquired = true;
             Debug.Log("Flag1");
             Destroy(col.gameObject);
         }
 
         if(col.gameObject.tag == "flag2"){
-            //musicAnim2.SetTrigger("fadeOut");
-            //StartCoroutine("SetAudioDelayed", audioObj2);
-            FindObjectOfType<AudioManager>().Play("Music3");
-            FindObjectOfType<AudioManager>().StopPlaying("Music2");
+            StartCoroutine("SetAudioDelayed", "Music3");
+            StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music2", 1f));
             Debug.Log("Flag2");
             Destroy(col.gameObject);
         }
 
         if(col.gameObject.tag == "flag3"){
-            //musicAnim3.SetTrigger("fadeOut");
-            //StartCoroutine("SetAudioDelayed", audioObj3);
-            //FindObjectOfType<AudioManager>().Play("Music4");
-            //FindObjectOfType<AudioManager>().StopPlaying("Music3");
-            Debug.Log("Flag1");
+            StartCoroutine("SetAudioDelayed", "Music4");
+            StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music3", 1f));
+            Debug.Log("Flag3");
+            Destroy(col.gameObject);
         }
 
         if(col.gameObject.tag == "flag4"){
             //musicAnim3.SetTrigger("fadeOut");
             //StartCoroutine("SetAudioDelayed", audioObj3);
             //FindObjectOfType<AudioManager>().StopPlaying("Music4");
-            Debug.Log("Flag1");
+            Debug.Log("Flag4");
+            Destroy(col.gameObject);
         }
 
         if(col.gameObject.tag == "Platform"){

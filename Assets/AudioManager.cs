@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -45,17 +46,27 @@ public class AudioManager : MonoBehaviour
         s.source.Play();
     }
 
-    public void StopPlaying (string sound)
+
+
+    public IEnumerator StartFade(string sound, float duration)
     {
+
         Sound s = Array.Find(sounds, item => item.name == sound);
         if (s == null)
         {
             Debug.LogWarning("Sound: " + name + " not found!");
-            return;
+            yield return null;
         }
 
-        s.source.volume = s.volume * 0;
+        float currentTime = 0;
+        float start = s.source.volume;
 
-        s.source.Stop ();
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            s.source.volume = Mathf.Lerp(start, 0, currentTime / duration);
+            yield return null;
+        }
+        yield break;
     }
 }
