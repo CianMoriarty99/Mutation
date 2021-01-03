@@ -34,6 +34,9 @@ public class PlayerController : MonoBehaviour
         refSpeed = speed;
         defaultGrav = rb.gravityScale;
         checkpoint = this.transform.position;
+        climbingAquired = false;
+        dashAquired = false;
+        wallJumpAquired = false;
 
               
     }
@@ -58,12 +61,13 @@ public class PlayerController : MonoBehaviour
        
         if (rb.velocity.y > 0.01){
             //animator.SetBool("isJumping", true);
-            //animator.SetBool("isFalling", false);
         }
 
-        if (rb.velocity.y < 0.01){
-            //animator.SetBool("isJumping", false);
-            //animator.SetBool("isFalling", true);
+        if (rb.velocity.y < -0.01 && !onGround && !climbing){
+            animator.SetBool("Falling", true);
+        }
+        else{
+            animator.SetBool("Falling", false);
         }
 
         if (rb.velocity.x < -0.01){
@@ -73,15 +77,25 @@ public class PlayerController : MonoBehaviour
             spriteRef.flipX = false;
         }
         
-        if(onLeftWall || onRightWall)
+        if(onLeftWall || onRightWall )
         {
-            climbing = true;
-            Climb(dir);
+            animator.SetBool("OnWall", true);
+            
+            if(climbingAquired)
+            {
+                climbing = true;
+                animator.SetBool("Climbing", true);
+                
+                Climb(dir);
+            }
+
 
         }
         else 
         {
+            animator.SetBool("OnWall", false);
             climbing = false;
+            animator.SetBool("Climbing", false);
         }
 
         if(dashing)
@@ -103,6 +117,7 @@ public class PlayerController : MonoBehaviour
             climbing = false;
             canDash = true;
             doubleJump = true;
+            
         }
         if(!dashing && !climbing)
             Walk(dir);
@@ -224,6 +239,7 @@ public class PlayerController : MonoBehaviour
             StartCoroutine("SetAudioDelayed", "Music2");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music1", 1f));
             dashAquired = true;
+            
             Debug.Log("Flag1");
             Destroy(col.gameObject);
         }
@@ -233,11 +249,14 @@ public class PlayerController : MonoBehaviour
             StartCoroutine("SetAudioDelayed", "Music3");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music2", 1f));
             Debug.Log("Flag2");
+            doubleJumpAquired = true;
             Destroy(col.gameObject);
         }
 
         if(col.gameObject.tag == "flag3"){
             checkpoint = this.transform.position;
+            climbingAquired = true;
+            wallJumpAquired = true;
             StartCoroutine("SetAudioDelayed", "Music4");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music3", 1f));
             Debug.Log("Flag3");
@@ -245,6 +264,7 @@ public class PlayerController : MonoBehaviour
         }
 
         if(col.gameObject.tag == "flag4"){
+            //END THE GAME STUFF
             checkpoint = this.transform.position;
             //musicAnim3.SetTrigger("fadeOut");
             //StartCoroutine("SetAudioDelayed", audioObj3);

@@ -31,4 +31,20 @@ public class PlatformController : MonoBehaviour
         currentDirection = (nextPos - transform.position).normalized;
         transform.position = Vector3.MoveTowards(transform.position, nextPos, platSpeed);
     }
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if(col.gameObject.tag == "Player"){
+            col.transform.parent = transform;
+        }
+
+    }
+
+    void OnTriggerExit2D(Collider2D col)
+    {
+        if(col.gameObject.tag == "Player"){
+            col.transform.parent = null;
+        }
+        
+    }
 }

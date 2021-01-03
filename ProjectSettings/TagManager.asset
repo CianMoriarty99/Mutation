@@ -9,6 +9,7 @@ TagManager:
   - flag2
   - flag3
   - flag4
+  - Acid
   layers:
   - Default
   - TransparentFX
