@@ -11,6 +11,7 @@ TagManager:
   - flag4
   - Acid
   - Note
+  - End
   layers:
   - Default
   - TransparentFX

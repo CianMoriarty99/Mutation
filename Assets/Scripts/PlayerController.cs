@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     public float speed, refSpeed, jumpForce, dashSpeed, xRaw, yRaw, x, y, defaultGrav, stepCD, climbCD;
 
-    public bool walk, onGround, onLeftWall, onRightWall, onPlatform, climbing, climbingAquired, dashing, canDash, dashAquired, wallJumpAquired, doubleJump, doubleJumpAquired, sprinting;
+    public bool walk, onGround, onLeftWall, onRightWall, onPlatform, climbing, climbingAquired, dashing, canDash, dashAquired, wallJumpAquired, doubleJump, doubleJumpAquired, sprinting, moreReactors, end;
 
     public float collisionRadius = 0.25f;
     public Vector2 bottomOffset, rightOffset, leftOffset;
@@ -23,7 +23,9 @@ public class PlayerController : MonoBehaviour
 
     public Vector3 checkpoint;
 
-    public int note;
+    public int note, reactors;
+
+    public RectTransform gameOver;
 
 
 
@@ -41,6 +43,10 @@ public class PlayerController : MonoBehaviour
         wallJumpAquired = false;
         doubleJumpAquired = false;
         note = 0;
+        reactors = 0;
+        moreReactors = false;
+        gameOver.gameObject.SetActive(false);
+            
         
 
               
@@ -152,8 +158,8 @@ public class PlayerController : MonoBehaviour
             climbing = false;
             canDash = true;
             doubleJump = true;
-            
         }
+
         if(!dashing && !climbing)
             Walk(dir);
 
@@ -161,7 +167,7 @@ public class PlayerController : MonoBehaviour
             Jump();
 
         if(Input.GetButtonDown("Fire1")){
-            if(canDash && !onGround && dashAquired)
+            if(canDash && !onGround &&!onLeftWall &&!onRightWall && dashAquired)
             {  
                 dashing = true;
                 StartCoroutine("Dash", rawDir);
@@ -193,23 +199,24 @@ public class PlayerController : MonoBehaviour
         if(onLeftWall || onRightWall )
         {
             animator.SetBool("OnWall", true);
-            canDash = true;
             if(climbingAquired)
             {
 
-                    if(climbCD < 0  && rb.velocity.y > 0){
-                        FindObjectOfType<AudioManager>().Play("Wall");
+                canDash = true;
+                if(climbCD < 0  && rb.velocity.y > 0){
+                    FindObjectOfType<AudioManager>().Play("Wall");
 
-                        if(sprinting)
-                        {
-                            climbCD = 0.2f;
-                        }
-                        else 
-                        {
-                            climbCD = 0.6f;
-                        }   
-                        
+                    if(sprinting)
+                    {
+                        climbCD = 0.2f;
+                    }
+                    else 
+                    {
+                        climbCD = 0.6f;
+                    }   
                 }
+                        
+                
 
                 
 
@@ -335,40 +342,40 @@ public class PlayerController : MonoBehaviour
 
         if(col.gameObject.tag == "flag1"){
             checkpoint = this.transform.position;
+            reactors++;
             StartCoroutine("SetAudioDelayed", "Music2");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music1", 1f));
             dashAquired = true;
-            
             Debug.Log("Flag1");
-            Destroy(col.gameObject);
+            Destroy(col.gameObject.GetComponent<BoxCollider2D>());
         }
 
         if(col.gameObject.tag == "flag2"){
             checkpoint = this.transform.position;
+            reactors++;
             StartCoroutine("SetAudioDelayed", "Music3");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music2", 1f));
             Debug.Log("Flag2");
             doubleJumpAquired = true;
-            Destroy(col.gameObject);
+            Destroy(col.gameObject.GetComponent<BoxCollider2D>());
         }
 
         if(col.gameObject.tag == "flag3"){
             checkpoint = this.transform.position;
+            reactors++;
             climbingAquired = true;
             wallJumpAquired = true;
             StartCoroutine("SetAudioDelayed", "Music4");
             StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music3", 1f));
             Debug.Log("Flag3");
-            Destroy(col.gameObject);
+            Destroy(col.gameObject.GetComponent<BoxCollider2D>());
         }
 
         if(col.gameObject.tag == "flag4"){
-            //END THE GAME STUFF
+            reactors++;
             checkpoint = this.transform.position;
-            StartCoroutine("SetAudioDelayed", "Ending");
-            StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music4", 1f));
             Debug.Log("Flag4");
-            Destroy(col.gameObject);
+            Destroy(col.gameObject.GetComponent<BoxCollider2D>());
         }
 
         if(col.gameObject.tag == "Platform"){
@@ -388,6 +395,19 @@ public class PlayerController : MonoBehaviour
             Debug.Log("noted");
             note++;
             Destroy(col.gameObject);
+
+        }
+
+        if(col.gameObject.tag == "End"){
+            if(reactors == 4)
+            {
+                StartCoroutine("SetAudioDelayed", "Ending");
+                StartCoroutine(FindObjectOfType<AudioManager>().StartFade("Music4", 1f));
+                end = true;
+            }
+            else{
+                moreReactors = true;
+            }
 
         }
 
