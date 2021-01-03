@@ -10,6 +10,7 @@ TagManager:
   - flag3
   - flag4
   - Acid
+  - Note
   layers:
   - Default
   - TransparentFX
